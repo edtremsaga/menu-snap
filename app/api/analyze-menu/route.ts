@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { createMockMenuAnalysis } from "@/lib/mock/menuAnalysis";
+import { parseMenuAnalysis } from "@/lib/menu/parse";
+import { extractTextFromImage } from "@/lib/ocr/provider";
+
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -13,7 +16,30 @@ export async function POST(request: Request) {
   }
 
   const sessionId = crypto.randomUUID();
-  const result = createMockMenuAnalysis(sessionId, image.name);
+  try {
+    const imageBuffer = Buffer.from(await image.arrayBuffer());
+    const ocr = await extractTextFromImage(imageBuffer);
+    const result = parseMenuAnalysis({
+      sessionId,
+      imageName: image.name,
+      ocr,
+    });
 
-  return NextResponse.json(result);
+    return NextResponse.json(result);
+  } catch {
+    const result = {
+      sessionId,
+      imageName: image.name,
+      parseStatus: "failed" as const,
+      sections: [],
+      flatItems: [],
+      glossaryCandidates: [],
+      warnings: [
+        "We couldn’t read this menu clearly yet. Try another photo with better lighting.",
+      ],
+      createdAt: new Date().toISOString(),
+    };
+
+    return NextResponse.json(result);
+  }
 }

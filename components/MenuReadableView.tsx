@@ -21,16 +21,43 @@ export function MenuReadableView({
   analysis,
   onExplain,
 }: MenuReadableViewProps) {
+  const sectionsToRender =
+    analysis.sections.length > 0
+      ? analysis.sections
+      : analysis.flatItems.length > 0
+        ? [
+            {
+              id: "detected-items",
+              title: "Detected Items",
+              items: analysis.flatItems,
+            },
+          ]
+        : [];
+
   return (
     <div className="space-y-5">
       {analysis.warnings.length > 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)] shadow-sm">
-          {analysis.warnings[0]}
+          <div className="space-y-2">
+            {analysis.warnings.map((warning) => (
+              <p key={warning}>{warning}</p>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {analysis.parseStatus === "failed" ? (
+        <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
+          <h2 className="text-lg font-semibold">Readable Menu</h2>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            We couldn’t turn this photo into a readable menu yet. You can still review
+            the original photo and try another image.
+          </p>
         </div>
       ) : null}
 
       <div className="space-y-4">
-        {analysis.sections.map((section) => (
+        {sectionsToRender.map((section) => (
           <section
             key={section.id}
             className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm"
