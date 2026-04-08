@@ -26,7 +26,6 @@ const CACHE_PATH = path.join(process.cwd(), ".next", "cache", "tesseract");
 const WORKER_PATH = require.resolve("tesseract.js/src/worker-script/node/index.js");
 const OCR_TIMEOUT_MS = 25000;
 const WORKER_INIT_TIMEOUT_MS = 5000;
-
 let workerPromise: Promise<Tesseract.Worker> | null = null;
 
 export async function extractTextFromImage(
