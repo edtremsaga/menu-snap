@@ -23,12 +23,9 @@ const LANG_PATH = path.join(
 const CACHE_PATH = path.join(process.cwd(), ".next", "cache", "tesseract");
 const WORKER_PATH = path.join(
   process.cwd(),
-  "node_modules",
-  "tesseract.js",
-  "src",
-  "worker-script",
-  "node",
-  "index.js",
+  "lib",
+  "ocr",
+  "tesseract-worker.cjs",
 );
 const OCR_TIMEOUT_MS = 25000;
 const WORKER_INIT_TIMEOUT_MS = 5000;
