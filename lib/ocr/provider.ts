@@ -1,4 +1,3 @@
-import { createRequire } from "module";
 import path from "path";
 import Tesseract from "tesseract.js";
 import sharp from "sharp";
@@ -14,7 +13,6 @@ export interface OcrResult {
   averageConfidence: number;
 }
 
-const require = createRequire(import.meta.url);
 const LANG_PATH = path.join(
   process.cwd(),
   "node_modules",
@@ -23,7 +21,15 @@ const LANG_PATH = path.join(
   "4.0.0",
 );
 const CACHE_PATH = path.join(process.cwd(), ".next", "cache", "tesseract");
-const WORKER_PATH = require.resolve("tesseract.js/src/worker-script/node/index.js");
+const WORKER_PATH = path.join(
+  process.cwd(),
+  "node_modules",
+  "tesseract.js",
+  "src",
+  "worker-script",
+  "node",
+  "index.js",
+);
 const OCR_TIMEOUT_MS = 25000;
 const WORKER_INIT_TIMEOUT_MS = 5000;
 let workerPromise: Promise<Tesseract.Worker> | null = null;
