@@ -8,10 +8,8 @@ export async function POST(request: Request) {
   const startedAt = Date.now();
   const traceId = crypto.randomUUID().slice(0, 8);
   const log = (message: string, extra?: Record<string, unknown>) => {
-    console.log(
-      `[analyze-menu:${traceId}] +${Date.now() - startedAt}ms ${message}`,
-      extra ?? "",
-    );
+    const suffix = extra ? ` ${JSON.stringify(extra)}` : "";
+    console.log(`[analyze-menu:${traceId}] +${Date.now() - startedAt}ms ${message}${suffix}`);
   };
 
   log("request-start");
@@ -36,6 +34,7 @@ export async function POST(request: Request) {
     });
     const imageBuffer = Buffer.from(await image.arrayBuffer());
     log("image-buffer-ready", { bytes: imageBuffer.byteLength });
+    log("ocr-start", { started: true });
     const ocr = await extractTextFromImage(imageBuffer);
     log("ocr-complete", {
       averageConfidence: ocr.averageConfidence,
@@ -55,7 +54,11 @@ export async function POST(request: Request) {
     });
 
     log("response-success");
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        "x-menu-snap-trace": traceId,
+      },
+    });
   } catch (error) {
     log("response-failed", {
       error: error instanceof Error ? error.message : String(error),
@@ -73,6 +76,10 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        "x-menu-snap-trace": traceId,
+      },
+    });
   }
 }
